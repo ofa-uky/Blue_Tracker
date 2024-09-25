@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Data Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .warning {
+            color: red;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Daily Data Tracker</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Metric</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody id="dataTable">
+            <!-- Dynamic data goes here -->
+        </tbody>
+    </table>
+
+    <div id="warningText" class="warning" style="display:none;">
+        Warning: Some values have increased by more than 5%!
+    </div>
+
+    <button onclick="downloadCSV()">Download CSV</button>
+
+    <script>
+        // Fetch data from the backend
+        fetch('api.php')
+            .then(response => response.json())
+            .then(data => {
+                const dataTable = document.getElementById('dataTable');
+                const values = data.data;
+
+                // Populate the table with data
+                for (let key in values) {
+                    let row = `<tr><td>${key}</td><td>${values[key]}</td></tr>`;
+                    dataTable.innerHTML += row;
+                }
+
+                // Show warning if applicable
+                if (data.warning) {
+                    document.getElementById('warningText').style.display = 'block';
+                }
+            });
+
+        // Function to download data as CSV
+        function downloadCSV() {
+            fetch('api.php')
+                .then(response => response.json())
+                .then(data => {
+                    const values = data.data;
+                    let csvContent = "data:text/csv;charset=utf-8,Metric,Value\n";
+
+                    for (let key in values) {
+                        csvContent += `${key},${values[key]}\n`;
+                    }
+
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", "data.csv");
+                    document.body.appendChild(link);
+                    link.click();
+                });
+        }
+    </script>
+
+</body>
+</html>
