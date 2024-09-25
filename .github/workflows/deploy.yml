@@ -17,7 +17,12 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.0'
-        
+
+    # install composer require vlucas/phpdotenv
+    - name: Install Composer Dependencies
+      run: composer install 
+      
+
     - name: Access API Token and Deploy
       run: php backend/api.php
       env:
